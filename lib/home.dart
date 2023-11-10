@@ -56,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Column(
                 children: [
-                  Text("Email");
+                  Text("Email"),
+                  Text("Email")
                 ],
               ),
 
