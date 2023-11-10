@@ -35,13 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: Container(
-              margin: EdgeInsets.only(top: 200),
+              margin: const EdgeInsets.only(top: 200, bottom: 10),
               height: 500,
               width: double.maxFinite,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                border: Border.all(color: Colors.black12),
+                gradient: const LinearGradient(
                       colors: [
-                        Color(0xFFFFaF4e),
+                        Color(0xFFFF5822),
                         Color(0xFFFFFFFF)
 
                       ],
@@ -52,6 +53,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.white
 
+              ),
+              child: Column(
+                children: [
+                  Text("Email");
+                ],
               ),
 
             ),
