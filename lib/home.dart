@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:skill_05/forget_password.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -116,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 10,),
                           TextButton(onPressed: (){
-                            print('Text button Tapped');
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ForgetPassword()));
                           },
                           child: const Text("Forget Password?", style: TextStyle(color: Colors.white),)
                           ),
@@ -124,10 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.maxFinite,
                             child: ElevatedButton(onPressed: (){
                               if(_formfield.currentState !.validate())
-                                print("Success");
                                 emailController.clear();
                                 passController.clear();
-
                             },
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF961208)),

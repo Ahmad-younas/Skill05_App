@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skill_05/forget_password.dart';
 import 'package:skill_05/splash_screen.dart';
 
 void main() {
