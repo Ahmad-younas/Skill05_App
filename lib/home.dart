@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_05/forget_password.dart';
 import 'package:skill_05/signin_page.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,11 +11,30 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+enum Option {
+  Candidate,
+  Recuriter
+}
+
 class _HomeScreenState extends State<HomeScreen> {
   final _formfield = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
+  Option _option = Option.Candidate;
+  Future fetchData() async {
+    final response = await http.post(Uri.parse('http://localhost:3001/api/candidate/candidateLogin'),body: {
+      'email': emailController.text,
+      'password':passController.text
+    });
+    print(response.body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      print(response);
+      throw Exception('Failed to load data');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -122,13 +142,38 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: const Text("Forget Password?", style: TextStyle(color: Colors.white),)
                           ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Candidate, groupValue: _option,title: const Text("Register As Candidate") ,onChanged: (option){
+                                  setState(() {
+                                    _option= option!;
+                                  });
+                                },
+                                  activeColor: Colors.red,
+                                ),
+                              ),
+                              SizedBox(width: 5.0,),
+                              Expanded(
+                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Recuriter, groupValue: _option, title: const Text("Register As Recuriter") ,onChanged: (option){
+                                  setState(() {
+                                    _option= option!;
+                                  });
+                                },
+                                  activeColor: Colors.red,
+                                ),
+                              )
+                            ],
+                          ),
                           Container(
                             width: double.maxFinite,
                             child: ElevatedButton(onPressed: (){
+
                               if(_formfield.currentState !.validate())
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SigninPage()));
                                 emailController.clear();
                                 passController.clear();
+                                fetchData();
                             },
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF961208)),
