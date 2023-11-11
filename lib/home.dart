@@ -9,6 +9,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _formfield = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passController = TextEditingController();
+  bool passToggle = true;
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -19,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
                 color: Colors.deepOrange,
                 height: 500,
-                child: Center(
+                child: const Center(
                   child: Column(
                     children: [
                       SizedBox(height: 60,),
@@ -39,26 +43,107 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 500,
               width: double.maxFinite,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black12),
+                border: Border.all(color: Colors.white24),
                 gradient: const LinearGradient(
                       colors: [
                         Color(0xFFFF5822),
                         Color(0xFFFFFFFF)
-
                       ],
                       begin: Alignment.topCenter,
                   end: Alignment.bottomCenter
-
                 ),
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.white
-
               ),
-              child: Column(
-                children: [
-                  Text("Email"),
-                  Text("Email")
-                ],
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formfield,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
+                    child: Container(
+                      alignment: Alignment.topLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Email", style: TextStyle(color: Colors.white, fontSize: 18),),
+                          const SizedBox(height: 10,),
+                          TextFormField(keyboardType: TextInputType.emailAddress,
+                            controller: emailController,
+                            decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                fillColor: Colors.white,
+                                filled: true,
+                              hintText: "Noman@gmail.com",
+                              hintStyle: TextStyle(color: Color(0xFF961208))
+                            ),
+                            validator: (value){
+                              if(value!.isEmpty) {
+                                return  "Enter Email";
+                              }
+                              bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
+                              if(!emailValid){
+                                return "Enter Valid Email";
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 10,),
+                          const Text("Password", style: TextStyle(color: Colors.white, fontSize: 18),),
+                          const SizedBox(height: 10,),
+                          TextFormField(keyboardType: TextInputType.emailAddress,
+                            controller: passController,
+                            obscureText: passToggle,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              fillColor: Colors.white,
+                              filled: true,
+                              hintText: "........",
+
+                              hintStyle: const TextStyle(color: Color(0xFF961208)),
+                              suffixIcon: InkWell(
+                                onTap: (){
+                                  setState(() {
+                                    passToggle = !passToggle;
+                                  });
+                                },
+                                child: Icon(passToggle ? Icons.visibility : Icons.visibility_off),
+                              )
+                            ),
+                            validator: (value){
+                              if(value!.isEmpty) {
+                                return  "Enter Password";
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 10,),
+                          TextButton(onPressed: (){
+                            print('Text button Tapped');
+                          },
+                          child: const Text("Forget Password?", style: TextStyle(color: Colors.white),)
+                          ),
+                          Container(
+                            width: double.maxFinite,
+                            child: ElevatedButton(onPressed: (){
+                              if(_formfield.currentState !.validate())
+                                print("Success");
+                                emailController.clear();
+                                passController.clear();
+
+                            },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF961208)),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)
+                                    ),
+                                  )
+                                )
+                                ,child: const Text('Login', style: TextStyle(color: Colors.white, fontSize: 18))),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
 
             ),
@@ -85,6 +170,6 @@ class CustomClipPath extends CustomClipper<Path>{
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
     // TODO: implement shouldReclip
-    throw UnimplementedError();
+    return true;
   }
 }
