@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_05/forget_password.dart';
+import 'package:skill_05/signin_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -125,6 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.maxFinite,
                             child: ElevatedButton(onPressed: (){
                               if(_formfield.currentState !.validate())
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SigninPage()));
                                 emailController.clear();
                                 passController.clear();
                             },
