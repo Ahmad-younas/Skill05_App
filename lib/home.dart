@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_05/forget_password.dart';
+import 'package:skill_05/recuriter_dashboard.dart';
 import 'package:skill_05/signin_page.dart';
 import 'package:http/http.dart' as http;
 
@@ -170,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ElevatedButton(onPressed: (){
 
                               if(_formfield.currentState !.validate())
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SigninPage()));
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>RecuriterDashboard()));
                                 emailController.clear();
                                 passController.clear();
                                 fetchData();
