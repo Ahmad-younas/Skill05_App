@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skill_05/client_bottomnavigation.dart';
 import 'package:skill_05/forget_password.dart';
 import 'package:skill_05/recuriter_dashboard.dart';
 import 'package:skill_05/signin_page.dart';
@@ -18,22 +23,100 @@ enum Option {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late SharedPreferences preferences;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    initSharedPref();
+  }
+
+  void initSharedPref() async{
+    preferences = await SharedPreferences.getInstance();
+
+  }
   final _formfield = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
   Option _option = Option.Candidate;
   Future fetchData() async {
-    final response = await http.post(Uri.parse('http://localhost:3001/api/candidate/candidateLogin'),body: {
-      'email': emailController.text,
-      'password':passController.text
-    });
-    print(response.body);
-    if (response.statusCode == 200) {
-      print(response.body);
-    } else {
-      print(response);
-      throw Exception('Failed to load data');
+    if (_option == Option.Candidate) {
+      final response = await http.post(Uri.parse('http://skillo.uk/api/candidate/candidateLogin'),body: {
+        'email': emailController.text,
+        'password':passController.text
+      },
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      );
+       if (response.statusCode == 200) {
+         var responseToken = jsonDecode(response.body);
+         preferences.setString('token', responseToken['token']);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => clientBottomNavigation()));
+      }else if(response.statusCode == 401) {
+         Fluttertoast.showToast(
+             msg: "User is not register with this email",
+             toastLength: Toast.LENGTH_SHORT,
+             gravity: ToastGravity.CENTER,
+             timeInSecForIosWeb: 3,
+             backgroundColor: Colors.red,
+             textColor: Colors.white,
+             fontSize: 16.0
+         );
+      }else if(response.statusCode == 402){
+         Fluttertoast.showToast(
+             msg: "Password Invalid",
+             toastLength: Toast.LENGTH_SHORT,
+             gravity: ToastGravity.CENTER,
+             timeInSecForIosWeb: 3,
+             backgroundColor: Colors.red,
+             textColor: Colors.white,
+             fontSize: 16.0
+         );
+       }else{
+         throw Exception('Failed to load data');
+       }
+      // Navigate to Candidate Dashboard
+
+    } else if (_option == Option.Recuriter) {
+      print("Ousides IF");
+      final response = await http.post(Uri.parse('http://skillo.uk/api/recruiter/recruiterLogin'),body: {
+        'email': emailController.text,
+        'password':passController.text
+      }, headers: {'Content-Type': 'application/x-www-form-urlencoded'});
+
+      if (response.statusCode == 201) {
+        var responseToken = jsonDecode(response.body);
+        //print(responseToken.toString());
+        //preferences.setString('token', responseToken['token']);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => RecuriterDashboard()));
+      } else if(response.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "User is not register with this email",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }else if(response.statusCode == 402){
+        Fluttertoast.showToast(
+            msg: "Password Invalid",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }else{
+        throw Exception('Failed to load data');
+      }
+      // Navigate to Recuriter Dashboard
     }
   }
   @override
@@ -146,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Candidate, groupValue: _option,title: const Text("Register As Candidate") ,onChanged: (option){
+                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Candidate,  groupValue: _option,title: const Text("Login As Candidate") ,onChanged: (option){
                                   setState(() {
                                     _option= option!;
                                   });
@@ -156,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               SizedBox(width: 5.0,),
                               Expanded(
-                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Recuriter, groupValue: _option, title: const Text("Register As Recuriter") ,onChanged: (option){
+                                child: RadioListTile(contentPadding: EdgeInsets.all(0.0), tileColor: Colors.red.shade50, value: Option.Recuriter, groupValue: _option, title: const Text("Login As Recuriter") ,onChanged: (option){
                                   setState(() {
                                     _option= option!;
                                   });
@@ -171,9 +254,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ElevatedButton(onPressed: (){
 
                               if(_formfield.currentState !.validate())
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>RecuriterDashboard()));
-                                emailController.clear();
-                                passController.clear();
+                                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>RecuriterDashboard()));
+                                // emailController.clear();
+                                // passController.clear();
                                 fetchData();
                             },
                                 style: ButtonStyle(
@@ -185,7 +268,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   )
                                 )
                                 ,child: const Text('Login', style: TextStyle(color: Colors.white, fontSize: 18))),
-                          )
+                          ),
+
+                          SizedBox(height: 10,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Don't have an account?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                              TextButton(onPressed: (){
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const SigninPage()));
+                              }, child: const Text("Signup", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),))
+                            ],
+                          ),
                         ],
                       ),
                     ),

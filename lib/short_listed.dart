@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 class ShortListed extends StatefulWidget {
   const ShortListed({super.key});
 
@@ -9,6 +11,68 @@ class ShortListed extends StatefulWidget {
 }
 
 class _ShortListedState extends State<ShortListed> {
+  List<Map<String, dynamic>>? _data;
+  int _dataLength = 0;
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+  Future<void> fetchData() async {
+    final response = await http.get(
+        Uri.parse('http://skillo.uk/api/candidate/getshortlistedcandidate'));
+    // print("response");
+    // print(response);
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      setState(() {
+        _data = List<Map<String, dynamic>>.from(responseData);
+        _dataLength = _data?.length ?? 0;
+      });
+      print(_data);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+
+
+  Future sendInvitation(String? id, String? email) async {
+      print(id);
+      print(email);
+      final response = await http.post(Uri.parse('http://skillo.uk/api/candidate/sendInvitation'),body: {
+        'email': email,
+        'id':id
+      },
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      );
+      print("response");
+      print(response.body);
+      if (response.statusCode == 201) {
+        final List<dynamic> responseData = json.decode(response.body);
+        setState(() {
+          _data = List<Map<String, dynamic>>.from(responseData);
+          _dataLength = _data?.length ?? 0;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Job Post Successfully!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+      }else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Job Not Posted'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        throw Exception('Failed to load data');
+      }
+      // Navigate to Candidate Dashboard
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +98,71 @@ class _ShortListedState extends State<ShortListed> {
                     ),
                   ),
                 ),
+                Container(
+                  height: 500,
+                  margin: EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 50,),
+                      Expanded(
+                        child: _data == null ? const Center(
+                            child: CircularProgressIndicator()
+                        ):ListView.builder(
+                            itemCount: _data?.length,
+                            itemBuilder: (context,index){
+                              return Column(
+                                children: [
+                                  Container(
+                                    width: 350,
+                                    height: 300,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF961208),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
+                                      child: Container(
+                                        width: double.maxFinite,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(_data?[index]['Name'], style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),),
+                                            SizedBox(height: 10,),
+                                            Text(_data?[index]['education'], style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),),
+                                            SizedBox(height: 10,),
+                                            Text(_data?[index]['Email'], style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),),
+                                            SizedBox(height: 10,),
+                                            Text(_data?[index]['phonenumber'], style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),),
+                                            const SizedBox(height: 5),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                ElevatedButton(onPressed: (){
+                                                  sendInvitation('${_data?[index]['id']}', _data?[index]['Email']);
+                                                }, style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFFFD5621)
+                                                ), child: const Text("Send Invite"),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                  ),
+                                  const SizedBox(height: 20)
+                                ],
+                              );
+                              //   ListTile(
+                              //   title: Text(_data?[index]['id'].toString()?? 'No Title'),
+                              // );
+                            }
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

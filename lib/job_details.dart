@@ -1,73 +1,23 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:skill_05/utils.dart';
-import 'package:http/http.dart' as http;
 
-class PostJob extends StatefulWidget {
-  const PostJob({super.key});
+class JobDetails extends StatefulWidget {
+  const JobDetails(data, {super.key});
 
   @override
-  State<PostJob> createState() => _PostJobState();
+  State<JobDetails> createState() => _JobDetailsState();
 }
 
-class _PostJobState extends State<PostJob> {
+class _JobDetailsState extends State<JobDetails> {
   final _formfield = GlobalKey<FormState>();
-  final jobTitle = TextEditingController();
-  final country = TextEditingController();
-  final city = TextEditingController();
-  final salary = TextEditingController();
-  final workType = TextEditingController();
-  final jobDescription = TextEditingController();
-  final tags = TextEditingController();
-  bool passToggle = true;
-
-  Uint8List? _image;
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
-    setState(() {
-      _image = img;
-    });
-  }
-
-  Future<void> fetchData() async {
-    try {
-      final response = await http.post(Uri.parse('http://10.0.2.2:3001/api/recruiter/recruiterpostjob'),body: {
-        'jobTitle': jobTitle.text,
-        'companyLogo':"/image/image.png",
-        'city':city.text,
-        'country':country.text,
-        'jobDescription':jobDescription.text,
-        'workplaceType':workType.text,
-        'salary':salary.text,
-        'tags':tags.text
-      },
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-      );
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Job Post Successfully!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        jobTitle.clear();
-        country.clear();
-        city.clear();
-        salary.clear();
-        workType.clear();
-        jobDescription.clear();
-        tags.clear();
-      } else {
-        throw Exception('Failed to load data');
-      }
-    }catch(error){
-      print('Error fetching data:$error');
-    }
-  }
-
+  final companyName = TextEditingController();
+  final companyEmail = TextEditingController();
+  final phoneNumber = TextEditingController();
+  final companyWebsiteLink = TextEditingController();
+  final companyBio = TextEditingController();
+  final experience = TextEditingController();
+  final categories = TextEditingController();
+  final workingTime = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +49,7 @@ class _PostJobState extends State<PostJob> {
                         child: Column(
                           children: [
                             const Text(
-                              "Post Your Job",
+                              "Your Portfolio",
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -113,29 +63,13 @@ class _PostJobState extends State<PostJob> {
                             const SizedBox(
                               height: 20,
                             ),
-                            _image != null ?
-                                CircleAvatar(
-                                  radius: 64,
-                                  backgroundImage: MemoryImage(_image!),
-                                ):
-                            CircleAvatar(
-                              radius: 64,
-                            ),
-                             Stack(
-                               children: [
-                                 IconButton(
-                                   onPressed: selectImage,
-                                   icon: const Icon(Icons.add_a_photo),
-                                 ),
-                               ]
-                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             const Row(
                               children: [
                                 Text(
-                                  "Job Title",
+                                  "Compnay Name",
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                       color: Colors.black87, fontSize: 18),
@@ -147,18 +81,19 @@ class _PostJobState extends State<PostJob> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.text,
-                              controller: jobTitle,
+                              controller: companyName,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Color(0x00000061))),
+                                    borderSide:
+                                    BorderSide(color: Color(0x00000061)),
+                                  ),
                                   fillColor: Colors.white,
                                   filled: true,
-                                  hintText: "e.g Senior Product Designer",
+                                  hintText: "e.g Willow Tree",
                                   hintStyle: TextStyle(color: Colors.black87)),
                               validator: (value) {
                                 if (value!.isEmpty) {
-                                  return "Enter Job Title ";
+                                  return "Enter Company Name ";
                                 }
                               },
                             ),
@@ -168,7 +103,7 @@ class _PostJobState extends State<PostJob> {
                             const Row(
                               children: [
                                 Text(
-                                  "Country",
+                                  "Company Email",
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                       color: Colors.black87, fontSize: 18),
@@ -180,18 +115,24 @@ class _PostJobState extends State<PostJob> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.emailAddress,
-                              controller: country,
+                              controller: companyEmail,
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(
                                       borderSide:
-                                          BorderSide(color: Color(0x00000061))),
+                                      BorderSide(color: Color(0x00000061))),
                                   fillColor: Colors.white,
                                   filled: true,
-                                  hintText: "e.g USA",
+                                  hintText: "e.g Wiloowtree@gmail.com",
                                   hintStyle: TextStyle(color: Colors.black87)),
                               validator: (value) {
                                 if (value!.isEmpty) {
-                                  return "Enter Country";
+                                  return "Enter Company Email";
+                                }
+                                bool emailValid = RegExp(
+                                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(value);
+                                if (!emailValid) {
+                                  return "Enter Valid Email";
                                 }
                               },
                             ),
@@ -201,7 +142,40 @@ class _PostJobState extends State<PostJob> {
                             const Row(
                               children: [
                                 Text(
-                                  "City",
+                                  "Phone Number",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                      color: Colors.black87, fontSize: 18),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.phone,
+                              controller: phoneNumber,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Color(0x00000061))),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  hintText: "e.g 1234556789",
+                                  hintStyle: TextStyle(color: Colors.black87)),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Enter Phone Number";
+                                }
+                              },
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Row(
+                              children: [
+                                Text(
+                                  "Company Website link",
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                       color: Colors.black87, fontSize: 18),
@@ -213,52 +187,19 @@ class _PostJobState extends State<PostJob> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.emailAddress,
-                              controller: city,
-                              decoration: const InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Color(0x00000061))),
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  hintText: "e.g New York",
-                                  hintStyle: TextStyle(color: Colors.black87)),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Enter City";
-                                }
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            const Row(
-                              children: [
-                                Text(
-                                  "Salary",
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                      color: Colors.black87, fontSize: 18),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.emailAddress,
-                              controller: salary,
+                              controller: companyWebsiteLink,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Color(0x00000061))),
+                                    BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
                                 filled: true,
-                                hintText: "2200-2500",
+                                hintText: "https://alithemes.com",
                                 hintStyle: TextStyle(color: Colors.black87),
                               ),
                               validator: (value) {
                                 if (value!.isEmpty) {
-                                  return "Enter Salary";
+                                  return "Enter Website Link";
                                 }
                               },
                             ),
@@ -268,41 +209,7 @@ class _PostJobState extends State<PostJob> {
                             const Row(
                               children: [
                                 Text(
-                                  "Work Type",
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                      color: Colors.black87, fontSize: 18),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.emailAddress,
-                              controller: workType,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Color(0x00000061))),
-                                fillColor: Colors.white,
-                                filled: true,
-                                hintText: "e.g remote",
-                                hintStyle: TextStyle(color: Colors.black87),
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Enter Work Type";
-                                }
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            const Row(
-                              children: [
-                                Text(
-                                  "Job Description",
+                                  "Company Bio",
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                       color: Colors.black87, fontSize: 18),
@@ -314,22 +221,58 @@ class _PostJobState extends State<PostJob> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.multiline,
-                              controller: jobDescription,
+                              maxLines: 5,
+                              minLines: 2,
+                              controller: companyBio,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderSide:
+                                    BorderSide(color: Color(0x00000061))),
+                                fillColor: Colors.white,
+                                filled: true,
+                                hintText: "e.g The AliStudio Design team has a vision to establish a trusted platform that enables productive and healthy enterprises in a world of digital and remote everything, constantly changing work patterns and norms, and the need for organizational resiliency.The ideal candidate will have strong creative skills and a portfolio of work which demonstrates their passion for illustrative design and typography. This candidate will have experiences in working with numerous different design platforms such as digital and print forms",
+                                hintStyle: TextStyle(color: Colors.black87),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Enter Company Bio";
+                                }
+                              },
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Row(
+                              children: [
+                                Text(
+                                  "Experience Required",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                      color: Colors.black87, fontSize: 18),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.multiline,
+                              controller: experience,
                               maxLines: 7,
                               minLines: 2,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Color(0x00000061))),
+                                    BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
                                 filled: true,
                                 hintText:
-                                    "e.g The AliStudio Design team has a vision to establish a trusted platform that enables productive and healthy enterprises in a world of digital and remote everything, constantly changing work patterns and norms, and the need for organizational resiliency.The ideal candidate will have strong creative skills and a portfolio of work which demonstrates their passion for illustrative design and typography. This candidate will have experiences in working with numerous different design platforms such as digital and print forms",
+                                "e.g The AliStudio Design team has a vision to establish a trusted platform that enables productive and healthy enterprises in a world of digital and remote everything, constantly changing work patterns and norms, and the need for organizational resiliency.The ideal candidate will have strong creative skills and a portfolio of work which demonstrates their passion for illustrative design and typography. This candidate will have experiences in working with numerous different design platforms such as digital and print forms",
                                 hintStyle: TextStyle(color: Colors.black87),
                               ),
                               validator: (value) {
                                 if (value!.isEmpty) {
-                                  return "Enter Job description";
+                                  return "Enter Experience";
                                 }
                               },
                             ),
@@ -339,7 +282,7 @@ class _PostJobState extends State<PostJob> {
                             const Row(
                               children: [
                                 Text(
-                                  "Tags(optionals",
+                                  "Categories",
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                       color: Colors.black87, fontSize: 18),
@@ -351,22 +294,57 @@ class _PostJobState extends State<PostJob> {
                             ),
                             TextFormField(
                               keyboardType: TextInputType.multiline,
-                              controller: tags,
+                              controller: categories,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Color(0x00000061))),
+                                    BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
                                 filled: true,
-                                hintText: "Figma, UI/UX",
+                                hintText: "e.g UI/UX Design",
                                 hintStyle: TextStyle(color: Colors.black87),
                               ),
-                              // validator: (value) {
-                              //   if (value!.isEmpty) {
-                              //     return "Enter ";
-                              //   }
-                              // },
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Enter Categories";
+                                }
+                              },
                             ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Row(
+                              children: [
+                                Text(
+                                  "Working Time",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                      color: Colors.black87, fontSize: 18),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.multiline,
+                              controller: workingTime,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderSide:
+                                    BorderSide(color: Color(0x00000061))),
+                                fillColor: Colors.white,
+                                filled: true,
+                                hintText: "e.g Full Time",
+                                hintStyle: TextStyle(color: Colors.black87),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Enter Work Time";
+                                }
+                              },
+                            ),
+
                             const SizedBox(
                               height: 20,
                             ),
@@ -374,19 +352,29 @@ class _PostJobState extends State<PostJob> {
                               width: double.maxFinite,
                               child: ElevatedButton(
                                   onPressed: () {
-                                   fetchData();
+                                    if (_formfield.currentState!.validate()) {
+                                      companyName.clear();
+                                      companyBio.clear();
+                                      companyEmail.clear();
+                                      categories.clear();
+                                      categories.clear();
+                                      companyWebsiteLink.clear();
+                                      workingTime.clear();
+                                      phoneNumber.clear();
+                                      experience.clear();
+                                    }
                                   },
                                   style: ButtonStyle(
                                       backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              const Color(0xFF961208)),
+                                      MaterialStateProperty.all<Color>(
+                                          const Color(0xFF961208)),
                                       shape: MaterialStateProperty.all<
                                           RoundedRectangleBorder>(
                                         RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(5)),
+                                            BorderRadius.circular(5)),
                                       )),
-                                  child: const Text('Post Job',
+                                  child: const Text('Update',
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 18))),
                             ),
@@ -402,5 +390,25 @@ class _PostJobState extends State<PostJob> {
         ),
       ),
     );
+  }
+}
+class CustomClipPath extends CustomClipper<Path>{
+  @override
+  Path getClip(Size size) {
+    double w = size.width;
+    double h = size.height;
+    final path = Path();
+    path.lineTo(0, h);
+    path.quadraticBezierTo(w * 0.5, h-100, w, h);
+    path.lineTo(w, 0);
+    path.close();
+    return path;
+
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    // TODO: implement shouldReclip
+    return true;
   }
 }

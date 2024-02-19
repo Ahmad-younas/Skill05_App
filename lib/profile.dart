@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 class Profile extends StatefulWidget {
   const Profile({super.key});
 
@@ -18,6 +18,40 @@ class _ProfileState extends State<Profile> {
   final experience = TextEditingController();
   final categories = TextEditingController();
   final workingTime = TextEditingController();
+  Future fetchData() async {
+
+      final response = await http.post(Uri.parse('http://10.0.2.2:3001/api/recruiter/recruiterprofile'),body: {
+        'companyName': companyName.text,
+        'companyEmail':companyEmail.text,
+        'phoneNumber':phoneNumber.text,
+        'companyWebsite':companyWebsiteLink.text,
+        'bio':companyBio.text,
+        'experience':experience.text,
+        'categories':categories.text,
+        'workingTime':workingTime.text
+      },
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      );
+      print(response.body);
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('successfully Created the Company Profile!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        companyBio.clear();
+        companyName.clear();
+        categories.clear();
+        companyEmail.clear();
+        companyWebsiteLink.clear();
+        experience.clear();
+        workingTime.clear();
+        phoneNumber.clear();
+      }else {
+        throw Exception('Failed to load data');
+      }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -351,17 +385,7 @@ class _ProfileState extends State<Profile> {
                               width: double.maxFinite,
                               child: ElevatedButton(
                                   onPressed: () {
-                                    if (_formfield.currentState!.validate()) {
-                                         companyName.clear();
-                                         companyBio.clear();
-                                         companyEmail.clear();
-                                         categories.clear();
-                                         categories.clear();
-                                         companyWebsiteLink.clear();
-                                         workingTime.clear();
-                                         phoneNumber.clear();
-                                         experience.clear();
-                                    }
+                                    fetchData();
                                   },
                                   style: ButtonStyle(
                                       backgroundColor:

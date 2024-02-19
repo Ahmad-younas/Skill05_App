@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_05/all_candidate.dart';
-import 'package:skill_05/post_job.dart';
-import 'package:skill_05/profile.dart';
 import 'package:skill_05/setting.dart';
 import 'package:skill_05/short_listed.dart';
+
+import 'AllRecuritedPostedJob.dart';
 
 class RecuriterDashboard extends StatefulWidget {
   const RecuriterDashboard({super.key});
@@ -18,9 +18,9 @@ class _RecuriterDashboardState extends State<RecuriterDashboard> {
 
   // Screens for the bottom navigation
   List<Widget> _screens = [
-        PostJob(),
-        Profile(),
-        Setting(),
+        // PostJob(),
+        AllRecuritedPostedJob(),
+        //eSetting(),
         AllCandidate(),
         ShortListed()
   ];
@@ -37,17 +37,17 @@ class _RecuriterDashboardState extends State<RecuriterDashboard> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.work),
-            label: 'PostJob',
+            label: 'PostedJob',
             backgroundColor: const Color(0xFF961208),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Setting',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.person_2),
+          //   label: 'Profile',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.settings),
+          //   label: 'Setting',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school),
             label: 'Candidate',

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -9,15 +12,84 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  void initState() {
+    super.initState();
+    fetchInformation();
+  }
   final _formfield = GlobalKey<FormState>();
-  final companyName = TextEditingController();
-  final companyEmail = TextEditingController();
-  final phoneNumber = TextEditingController();
-  final companyWebsiteLink = TextEditingController();
-  final companyBio = TextEditingController();
-  final experience = TextEditingController();
-  final categories = TextEditingController();
-  final workingTime = TextEditingController();
+   TextEditingController companyName = TextEditingController();
+  TextEditingController companyEmail = TextEditingController();
+  TextEditingController phoneNumber = TextEditingController();
+  TextEditingController companyWebsiteLink = TextEditingController();
+  TextEditingController companyBio = TextEditingController();
+  TextEditingController experience = TextEditingController();
+  TextEditingController categories = TextEditingController();
+  TextEditingController workingTime = TextEditingController();
+
+  List<Map<String, dynamic>>? _data;
+  int _dataLength = 0;
+  Future fetchData() async {
+    final response = await http.post(Uri.parse('http://10.0.2.2:3001/api/recruiter/updateProfileInfo'),body: {
+      'companyName': companyName.text,
+      'companyEmail':companyEmail.text,
+      'phoneNumber':phoneNumber.text,
+      'companyWebsite':companyWebsiteLink.text,
+      'bio':companyBio.text,
+      'experience':experience.text,
+      'categories':categories.text,
+      'workingTime':workingTime.text
+    },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    );
+    print(response.body);
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('successfully Updated the Company Profile!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      companyBio.clear();
+      companyName.clear();
+      categories.clear();
+      companyEmail.clear();
+      companyWebsiteLink.clear();
+      experience.clear();
+      workingTime.clear();
+      phoneNumber.clear();
+    }else {
+      throw Exception('Failed to load data');
+    }
+  }
+  Future fetchInformation() async {
+    try {
+      var userId = '7';
+      final response = await http.get(
+          Uri.parse('http://skillo.uk/api/recruiter/getprofileInfo?id=$userId'));
+       print("---------------------------------------");
+       print(response.body);
+       print("---------------------------------------");
+      if (response.statusCode == 200) {
+        final data  = json.decode(response.body);
+        // setState(() {
+        //   _data = List<Map<String, dynamic>>.from(responseData);
+        //   _dataLength = _data?.length ?? 0;
+        // });
+        companyBio.text = data["JobDescription"];
+        companyName.text=data["JobDescription"];
+        categories.text=data["Tags"];
+        companyEmail.text=data["JobDescription"];
+        companyWebsiteLink.text=data["JobDescription"];
+        experience.text=data["JobDescription"];
+        workingTime.text=data["JobDescription"];
+        phoneNumber.text=data["JobDescription"];
+      } else {
+        throw Exception('Failed to load data');
+      }
+    }catch(error){
+      print('Error fetching data:$error');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +120,8 @@ class _SettingState extends State<Setting> {
                         key: _formfield,
                         child: Column(
                           children: [
+
+
                             const Text(
                               "Update Company Information",
                               style: TextStyle(
@@ -85,7 +159,8 @@ class _SettingState extends State<Setting> {
                               decoration: const InputDecoration(
                                   border: OutlineInputBorder(
                                       borderSide:
-                                      BorderSide(color: Color(0x00000061))),
+                                      BorderSide(color: Color(0x00000061)),
+                                  ),
                                   fillColor: Colors.white,
                                   filled: true,
                                   hintText: "e.g Willow Tree",
@@ -351,17 +426,7 @@ class _SettingState extends State<Setting> {
                               width: double.maxFinite,
                               child: ElevatedButton(
                                   onPressed: () {
-                                    if (_formfield.currentState!.validate()) {
-                                      companyName.clear();
-                                      companyBio.clear();
-                                      companyEmail.clear();
-                                      categories.clear();
-                                      categories.clear();
-                                      companyWebsiteLink.clear();
-                                      workingTime.clear();
-                                      phoneNumber.clear();
-                                      experience.clear();
-                                    }
+
                                   },
                                   style: ButtonStyle(
                                       backgroundColor:

@@ -1,8 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
 
@@ -16,11 +18,83 @@ enum Option {
 }
 
 class _SigninPageState extends State<SigninPage> {
+
+
   final _formfield = GlobalKey<FormState>();
   final emailController = TextEditingController();
+  final fullNameController = TextEditingController();
+  final userNameController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
   Option _option = Option.Candidate;
+  Future fetchData() async {
+    if (_option == Option.Candidate) {
+      print("InsideIF");
+      final response = await http.post(Uri.parse('http://skillo.uk/api/candidate/candidateSignUp'),body: {
+        'email': emailController.text,
+        'password':passController.text,
+        'name':fullNameController.text,
+        'username':userNameController.text
+      },
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      );
+      if (response.statusCode == 201) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => HomeScreen()));
+      }else if(response.statusCode == 409) {
+        Fluttertoast.showToast(
+            msg: "User With this email already exist",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }else{
+        throw Exception('Failed to load data');
+      }
+      // Navigate to Candidate Dashboard
+
+    } else if (_option == Option.Recuriter) {
+      print("Ousides IF");
+      print(fullNameController.text);
+      final response = await http.post(Uri.parse('http://skillo.uk/api/recruiter/recruiterSignUp'),body: {
+        'email': emailController.text,
+        'password':passController.text,
+        'name':fullNameController.text,
+        'username':userNameController.text
+      }, headers: {'Content-Type': 'application/x-www-form-urlencoded'});
+      print(response.body);
+      if (response.statusCode == 201) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
+        Fluttertoast.showToast(
+            msg: "Please Login",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 5,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      } else if(response.statusCode == 409) {
+        Fluttertoast.showToast(
+            msg: "User With this email already exist",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }else{
+        throw Exception('Failed to load data');
+      }
+      // Navigate to Recuriter Dashboard
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +134,7 @@ class _SigninPageState extends State<SigninPage> {
                           ),
                           const SizedBox(height: 10,),
                           TextFormField(keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
+                            controller: fullNameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(borderSide: BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
@@ -108,7 +182,7 @@ class _SigninPageState extends State<SigninPage> {
                           ),
                           const SizedBox(height: 10,),
                           TextFormField(keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
+                            controller: userNameController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(borderSide: BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
@@ -131,6 +205,7 @@ class _SigninPageState extends State<SigninPage> {
                           const SizedBox(height: 10,),
                           TextFormField(keyboardType: TextInputType.emailAddress,
                             controller: passController,
+                            obscureText: passToggle,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(borderSide: BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
@@ -160,7 +235,8 @@ class _SigninPageState extends State<SigninPage> {
                           ),
                           const SizedBox(height: 10,),
                           TextFormField(keyboardType: TextInputType.emailAddress,
-                            controller: passController,
+                            controller: confirmPasswordController,
+                            obscureText: passToggle,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(borderSide: BorderSide(color: Color(0x00000061))),
                                 fillColor: Colors.white,
@@ -187,7 +263,7 @@ class _SigninPageState extends State<SigninPage> {
                             width: double.maxFinite,
                             child: ElevatedButton(onPressed: (){
                               if(_formfield.currentState !.validate())
-                                emailController.clear();
+                                fetchData();
                             },style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF961208)),
                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
